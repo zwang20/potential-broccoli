@@ -2,7 +2,7 @@ import discord
 import csv
 import os
 
-with open('.token', 'r') as f:
+with open('token.txt', 'r') as f:
     TOKEN = f.read()
 
 puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
@@ -38,17 +38,21 @@ def add_user(userid):  # will be changed
             with open('users.csv', 'a', newline='') as users:
                 writer = csv.DictWriter(users, fieldnames=['userid', 'solve1', 'solve2', 'solve3', 'solve4', 'solve5'])
                 writer.writerow({'userid': userid,
-                                 'solve1': 0,
-                                 'solve2': 0,
-                                 'solve3': 0,
-                                 'solve4': 0,
-                                 'solve5': 0})
+                                 'solve1': False,
+                                 'solve2': False,
+                                 'solve3': False,
+                                 'solve4': False,
+                                 'solve5': False})
 
 
 def check_meta(userid):
     for i in range(5):
         if check_user(userid, 'solve{}'.format(str(i+1))):
             pass
+        else:
+            return False
+    else:
+        return True
 
 
 class MyClient(discord.Client):
@@ -87,6 +91,10 @@ class MyClient(discord.Client):
                     embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
                                     inline=False)
                     await message.channel.send(embed=embed)
+
+            elif message.content.startswith('!getmeta'):
+                if check_meta(message.author.id):
+                    print("Congratulations! Here's the meta!")
 
             else:
                 await message.channel.send("Use !help to see how to use this bot.")
