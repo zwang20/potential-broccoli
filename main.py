@@ -7,13 +7,6 @@ with open('token.txt', 'r') as f:
 
 puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
 
-try:
-    with open("users.csv", "r") as f:
-        pass
-except FileNotFoundError:
-    with open("users.csv", "w") as f:
-        f.write("userid,solve1,solve2,solve3,solve4,solve5\n")
-
 
 def change_file(userid, field, new):
     field_pos = {'userid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5}
@@ -37,12 +30,18 @@ def check_user(userid, field):
 
 
 def add_user(userid):
-    with open('users.csv', 'a', newline='') as users:
-        for line in users:
-            if int(line.split(',')[0]) == userid:
+    with open('users.csv', newline='') as users:
+        for user in csv.DictReader(users):
+            if int(user['userid']) == userid:
                 pass
         else:
-            users.write('{},0,0,0,0,0'.format(userid))
+            writer = csv.DictWriter(users, fieldnames=['userid','solve1','solve2','solve3','solve4','solve5'])
+            writer.writerow({'userid': userid,
+                             'solve1': 0,
+                             'solve2': 0,
+                             'solve3': 0,
+                             'solve4': 0,
+                             'solve5': 0})
 
 
 def check_meta(userid):
@@ -76,12 +75,6 @@ class MyClient(discord.Client):
                 puzzle_no = int(message_words[0][-1])
                 if message_words[1] == puzzle_answers[puzzle_no-1]:
                     change_file(message.author.id, 'solve{}'.format(str(puzzle_no)), True)
-
-
-
-
-
-
 
 
 client = MyClient()
