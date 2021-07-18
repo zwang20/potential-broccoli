@@ -2,7 +2,9 @@ import discord
 import csv
 import os
 
-TOKEN = 'ODY2MjY1MTY4ODAyNjExMjAx.YPQCTg.coKgYnWwpCjuOOlaLGRD01-B3mA'
+with open('token.txt', 'r') as f:
+    TOKEN = f.read()
+
 puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
 
 try:
