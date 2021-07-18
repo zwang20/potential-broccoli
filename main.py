@@ -36,9 +36,9 @@ def check_user(userid, field):
 
 def add_user(userid):
     with open('users.csv', 'a', newline='') as users:
-        print(users)
-        if 2 > 1:
-            pass
+        for line in users:
+            if int(line.split(',')[0]) == userid:
+                pass
         else:
             users.write('{},0,0,0,0,0'.format(userid))
 
