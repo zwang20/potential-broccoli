@@ -29,19 +29,20 @@ def check_user(userid, field):
                 return user[field]
 
 
-def add_user(userid):
+def add_user(userid):  # will be changed
     with open('users.csv', newline='') as users:
         for user in csv.DictReader(users):
             if int(user['userid']) == userid:
-                pass
+                break
         else:
-            writer = csv.DictWriter(users, fieldnames=['userid','solve1','solve2','solve3','solve4','solve5'])
-            writer.writerow({'userid': userid,
-                             'solve1': 0,
-                             'solve2': 0,
-                             'solve3': 0,
-                             'solve4': 0,
-                             'solve5': 0})
+            with open('users.csv', 'a', newline='') as users:
+                writer = csv.DictWriter(users, fieldnames=['userid', 'solve1', 'solve2', 'solve3', 'solve4', 'solve5'])
+                writer.writerow({'userid': userid,
+                                 'solve1': 0,
+                                 'solve2': 0,
+                                 'solve3': 0,
+                                 'solve4': 0,
+                                 'solve5': 0})
 
 
 def check_meta(userid):
@@ -67,14 +68,28 @@ class MyClient(discord.Client):
         if message.content.startswith('!'):
             if message.content == '!help':
                 embed = discord.Embed(title="Help Page", color=0x000000)
-                embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.", inline=False)
-                embed.add_field(name="!getmeta", value="Get the meta, if you've answered all 5 puzzles correctly!", inline=False)
+                embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.",
+                                inline=False)
+                embed.add_field(name="!getmeta", value="Get the meta, if you've answered all 5 puzzles correctly!",
+                                inline=False)
                 await message.channel.send(embed=embed)
 
             elif message.content.startswith('!puzz'):
                 puzzle_no = int(message_words[0][-1])
                 if message_words[1] == puzzle_answers[puzzle_no-1]:
                     change_file(message.author.id, 'solve{}'.format(str(puzzle_no)), True)
+                    embed = discord.Embed(color=0x00ff00)
+                    embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!".format(puzzle_no),
+                                    inline=False)
+                    await message.channel.send(embed=embed)
+                else:
+                    embed = discord.Embed(color=0xff0000)
+                    embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
+                                    inline=False)
+                    await message.channel.send(embed=embed)
+
+            else:
+                await message.channel.send("Use !help to see how to use this bot.")
 
 
 client = MyClient()
