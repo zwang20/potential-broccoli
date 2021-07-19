@@ -21,12 +21,12 @@ teamlist = {"1": "YES MAN",
             "12": "team number 12",
             }
 
-def change_file(userid, field, new):
-    field_pos = {'userid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5, 'cap': 6}
+def change_file(teamid, field, new):
+    field_pos = {'teamid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5, 'cap': 6}
     with open('users.csv', 'r') as old_file, open('updated_users.csv', 'w+') as new_file:
         for row in old_file:
             row_content = row.split(',')
-            if row_content[0] == str(userid):
+            if row_content[0] == str(teamid):
                 row_content[field_pos[field]] = str(new)
                 new_file.write(str(','.join(row_content)))
             else:
@@ -35,22 +35,22 @@ def change_file(userid, field, new):
     os.rename('updated_users.csv', 'users.csv')
 
 
-def check_user(userid, field):
+def check_user(teamid, field):
     with open('users.csv', newline='') as users:
         for user in csv.DictReader(users):
-            if int(user['userid']) == userid:
+            if int(user['teamid']) == teamid:
                 return user[field]
 
 
-def add_user(userid):  # will be changed
+def add_user(teamid):  # will be changed
     with open('users.csv', newline='') as users:
         for user in csv.DictReader(users):
-            if int(user['userid']) == userid:
+            if int(user['teamid']) == teamid:
                 break
         else:
             with open('users.csv', 'a', newline='') as users:
-                writer = csv.DictWriter(users, fieldnames=['userid', 'solve1', 'solve2', 'solve3', 'solve4', 'solve5', 'cap'])
-                writer.writerow({'userid': userid,
+                writer = csv.DictWriter(users, fieldnames=['teamid', 'solve1', 'solve2', 'solve3', 'solve4', 'solve5', 'cap'])
+                writer.writerow({'teamid': teamid,
                                  'solve1': 0,
                                  'solve2': 0,
                                  'solve3': 0,
@@ -63,10 +63,10 @@ def team_id(userid):  # TODO make this return the actual team name
     return userid
 
 
-def check_meta(userid):
+def check_meta(teamid):
     x = 0
     for i in range(5):
-        if check_user(userid, 'solve{}'.format(str(i+1))) == '1':
+        if check_user(teamid, 'solve{}'.format(str(i+1))) == '1':
             x += 1
     return x
 
