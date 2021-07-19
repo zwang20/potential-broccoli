@@ -6,6 +6,7 @@ with open('token.txt', 'r') as f:
     TOKEN = f.read()
 
 #########################################################################
+# Version 1.0
 
 puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
 num_scoreboard = 9
