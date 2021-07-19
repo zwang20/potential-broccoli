@@ -19,6 +19,7 @@ teamlist = {"1": "YES MAN",
             "10": "yes man",
             "11": "timmy fan club uwu",
             "12": "team number 12",
+            "13": "team number 13",
             }
 
 def change_file(teamid, field, new):
