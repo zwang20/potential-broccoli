@@ -29,6 +29,7 @@ except FileNotFoundError:
     with open("teamlist.csv", "w") as f:
         f.write("teamid,teamname,user1,user2,user3,user4,solve1,solve2,solve3,solve4,solve5\n")
 
+
 def change_file(teamid, field, new):
     field_pos = {'teamid': 0, 'solve1': 6, 'solve2': 7, 'solve3': 8, 'solve4': 9, 'solve5': 10}
     with open('teamlist.csv', 'r') as old_file, open('updated_teamlist.csv', 'w+') as new_file:
@@ -64,7 +65,6 @@ def check_score(teamid):
         if check_user(teamid, 'solve{}'.format(str(i+1))) == '1':
             x += 1
     return x
-
 
 class MyClient(discord.Client):
     @staticmethod
@@ -114,9 +114,9 @@ class MyClient(discord.Client):
                 score_list = score_list[::-1]
 
                 displaylist = []
-                for i in range(0,num_scoreboard):
+                for i in range(0, num_scoreboard):
                     try:
-                        displaylist.append(str(i+1)+". Team **"+score_list[i][0]+'** with **'+str(score_list[i][1])+"** puzzles completed.")
+                        displaylist.append(str(i+1)+". Team **"+score_list[i][0]+'** with **'+str(score_list[i][1])+"** puzzle{} completed.".format("" if score_list[i][1] == 1 else "s"))
                     except IndexError:
                         pass
                 embed = discord.Embed(title="PixarHunt Top "+ str(num_scoreboard) +" Leaderboard",
@@ -197,6 +197,8 @@ class MyClient(discord.Client):
                                                                "Puzzle solved for **{}**.".format(puzzle_no, teamlist[str(team)]),
                                         inline=False)
                         await message.channel.send(embed=embed)
+                        if check_score(team) == 5:
+                            await message.channel.send("Congratulations on solving all 5 puzzles! Here's the meta!\n" + metalink)
                     else:
                         embed = discord.Embed(color=0xff0000)
                         embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
