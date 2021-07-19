@@ -17,6 +17,8 @@ with open('teamlist.csv', newline='') as f:
     for team in csv.DictReader(f):
         teamlist[team["teamid"]] = team["teamname"]
 
+print(teamlist)
+
 
 def change_file(teamid, field, new):
     field_pos = {'teamid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5, 'cap': 6}
@@ -60,7 +62,7 @@ def team_id(userid, teamlist):  # TODO make this return the actual team name
     return teamlist[str(userid)]
 
 
-def check_meta(teamid):
+def check_score(teamid):
     x = 0
     for i in range(5):
         if check_user(teamid, 'solve{}'.format(str(i+1))) == '1':
@@ -84,7 +86,6 @@ class MyClient(discord.Client):
             team = team_id(message.author.id, teamlist)
             add_user(team)
 
-        if message.content.startswith('!'):
             if message.content == '!help':
                 embed = discord.Embed(title="Help Page", color=0x000000)
                 embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.",
@@ -118,7 +119,7 @@ class MyClient(discord.Client):
                 await message.channel.send(embed=embed)
 
             elif message.content.startswith('!getmeta'):
-                x = check_meta(team)
+                x = check_score(team)
                 if x == 5:
                     await message.channel.send("Congratulations! Here's the meta!")
                 else:
@@ -128,7 +129,7 @@ class MyClient(discord.Client):
                 score_list = []
                 with open('users.csv', newline='') as f:
                     for team in csv.DictReader(f):
-                        score = check_meta(int(team["teamid"]))
+                        score = check_score(int(team["teamid"]))
                         try:
                             score_list.append([teamlist[team["teamid"]], score])
                         except KeyError:
