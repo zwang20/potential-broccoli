@@ -29,7 +29,7 @@ def check_user(teamid, field):
                 return user[field]
 
 
-def add_user(teamid):  # will be changed
+def add_team(teamid):  # will be changed
     with open('users.csv', newline='') as users:
         for user in csv.DictReader(users):
             if int(user['teamid']) == teamid:
@@ -71,7 +71,7 @@ class MyClient(discord.Client):
         message.content = message.content.lower()
         message_words = message.content.split()
         team = team_id(message.author.id)
-        add_user(team)
+        add_team(team)
 
         if message.content.startswith('!'):
             if message.content == '!help':
@@ -90,7 +90,7 @@ class MyClient(discord.Client):
                     change_file(team, 'solve{}'.format(str(puzzle_no)), 1)
                     embed = discord.Embed(color=0x00ff00)
                     embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!\n"
-                                                           "Puzzle solved for {}.".format(puzzle_no, team),
+                                                           "Puzzle solved for team {}.".format(puzzle_no, team),
                                     inline=False)
                     await message.channel.send(embed=embed)
                 else:
