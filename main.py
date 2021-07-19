@@ -83,13 +83,12 @@ class MyClient(discord.Client):
             return
 
         if message.content.startswith('!'):
-            message.content = message.content.lower()
             message_words = message.content.split()
             team = team_id(message.author.id)
 
             if message.content == '!help':
                 embed = discord.Embed(title="Help Page", color=0x000000)
-                embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.",
+                embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.\nE.g. !puzz1 sampleanswer",
                                 inline=False)
                 embed.add_field(name="!getmeta", value="Get the meta, if you've answered all 5 puzzles correctly!",
                                 inline=False)
@@ -128,19 +127,28 @@ class MyClient(discord.Client):
                 return 0
 
             elif message.content.startswith('!puzz'):
-                puzzle_no = int(message_words[0][-1])
-                if message_words[1] == puzzle_answers[puzzle_no-1]:
-                    change_file(team, 'solve{}'.format(str(puzzle_no)), 1)
-                    embed = discord.Embed(color=0x00ff00)
-                    embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!\n"
-                                                           "Puzzle solved for **{}**.".format(puzzle_no, teamlist[str(team)]),
-                                    inline=False)
-                    await message.channel.send(embed=embed)
+                message.content = message.content.lower()
+                puzzle_no = message_words[0][-1]
+                if puzzle_no not in '12345':
+                    await message.channel.send("Use !help to see how to use this bot.")
+                    return
                 else:
-                    embed = discord.Embed(color=0xff0000)
-                    embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
-                                    inline=False)
-                    await message.channel.send(embed=embed)
+                    puzzle_no = int(puzzle_no)
+                try:
+                    if message.content[7:] == puzzle_answers[puzzle_no-1]:
+                        change_file(team, 'solve{}'.format(str(puzzle_no)), 1)
+                        embed = discord.Embed(color=0x00ff00)
+                        embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!\n"
+                                                               "Puzzle solved for **{}**.".format(puzzle_no, teamlist[str(team)]),
+                                        inline=False)
+                        await message.channel.send(embed=embed)
+                    else:
+                        embed = discord.Embed(color=0xff0000)
+                        embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
+                                        inline=False)
+                        await message.channel.send(embed=embed)
+                except IndexError:
+                    await message.channel.send("Use !help to see how to use this bot.")
 
             elif message.content.startswith('!progress'):
                 embed = discord.Embed(color=0x7289DA)
