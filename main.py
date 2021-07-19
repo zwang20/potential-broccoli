@@ -1,6 +1,7 @@
 import discord
 import csv
 import os
+from operator import itemgetter
 
 with open('token.txt', 'r') as f:
     TOKEN = f.read()
@@ -125,6 +126,44 @@ class MyClient(discord.Client):
                 else:
                     await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
 
+            elif message.content == '!top':
+                top_ten = []
+                score_list = []
+                with open('users.csv', newline='') as f:
+                    for team in csv.DictReader(f):
+                        score = int(team["solve1"]) + int(team["solve2"]) + int(team["solve3"]) + int(
+                            team["solve4"]) + int(team["solve5"])
+                        try:
+                            score_list.append([teamlist[team["teamid"]], score])
+                        except KeyError:
+                            score_list.append([team["teamid"], score])
+
+                score_list = sorted(score_list, key=itemgetter(1))
+                for n in range(1, 11):
+                    top_ten.append(score_list[-n])
+                embed = discord.Embed(title="PixarHunt Top 10 Leaderboard",
+                                      description="1. Team **" + top_ten[0][0] + '** with **' + str(
+                                          top_ten[0][1]) + "** puzzles completed.\n"
+                                                           "2. Team **" + top_ten[1][0] + '** with **' + str(
+                                          top_ten[1][1]) + "** puzzles completed.\n"
+                                                           "3. Team **" + top_ten[2][0] + '** with **' + str(
+                                          top_ten[2][1]) + "** puzzles completed.\n"
+                                                           "4. Team **" + top_ten[3][0] + '** with **' + str(
+                                          top_ten[3][1]) + "** puzzles completed.\n"
+                                                           "5. Team **" + top_ten[4][0] + '** with **' + str(
+                                          top_ten[4][1]) + "** puzzles completed.\n"
+                                                           "6. Team **" + top_ten[5][0] + '** with **' + str(
+                                          top_ten[5][1]) + "** puzzles completed.\n"
+                                                           "7. Team **" + top_ten[6][0] + '** with **' + str(
+                                          top_ten[6][1]) + "** puzzles completed.\n"
+                                                           "8. Team **" + top_ten[7][0] + '** with **' + str(
+                                          top_ten[7][1]) + "** puzzles completed.\n"
+                                                           "9. Team **" + top_ten[8][0] + '** with **' + str(
+                                          top_ten[8][1]) + "** puzzles completed.\n"
+                                                           "10. Team **" + top_ten[9][0] + '** with **' + str(
+                                          top_ten[9][1]) + "** puzzles completed.", color=0xffa500)
+
+                await message.channel.send(embed=embed)
             else:
                 await message.channel.send("Use !help to see how to use this bot.")
 
