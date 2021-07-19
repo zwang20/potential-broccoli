@@ -102,7 +102,7 @@ class MyClient(discord.Client):
                 score_list = []
                 with open('users.csv', newline='') as f:
                     for team in csv.DictReader(f):
-                        score = check_meta(int(team["teamid"]))
+                        score = check_score(int(team["teamid"]))
                         try:
                             score_list.append([teamlist[team["teamid"]], score])
                         except KeyError:
@@ -147,7 +147,7 @@ class MyClient(discord.Client):
                 await message.channel.send(embed=embed)
 
             elif message.content.startswith('!getmeta'):
-                x = check_meta(team)
+                x = check_score(team)
                 if x == 5:
                     await message.channel.send("Congratulations! Here's the meta!")
                 else:
