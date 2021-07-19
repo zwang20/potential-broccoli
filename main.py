@@ -22,6 +22,7 @@ teamlist = {"1": "YES MAN",
             "12": "team number 12",
             "13": "team number 13",
             }
+num_scoreboard = 9
 
 def change_file(teamid, field, new):
     field_pos = {'teamid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5, 'cap': 6}
@@ -97,6 +98,8 @@ class MyClient(discord.Client):
                                 inline=False)
                 embed.add_field(name="!getmeta", value="Get the meta, if you've answered all 5 puzzles correctly!",
                                 inline=False)
+                embed.add_field(name="!top", value="Check the leaderboard for puzzles solved!",
+                                inline=False)
                 await message.channel.send(embed=embed)
 
             elif message.content.startswith('!puzz'):
@@ -127,43 +130,29 @@ class MyClient(discord.Client):
                     await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
 
             elif message.content == '!top':
-                top_ten = []
                 score_list = []
                 with open('users.csv', newline='') as f:
                     for team in csv.DictReader(f):
-                        score = int(team["solve1"]) + int(team["solve2"]) + int(team["solve3"]) + int(
-                            team["solve4"]) + int(team["solve5"])
+                        score = check_meta(int(team["teamid"]))
                         try:
                             score_list.append([teamlist[team["teamid"]], score])
                         except KeyError:
                             score_list.append([team["teamid"], score])
 
-                score_list = sorted(score_list, key=itemgetter(1))
-                for n in range(1, 11):
-                    top_ten.append(score_list[-n])
-                embed = discord.Embed(title="PixarHunt Top 10 Leaderboard",
-                                      description="1. Team **" + top_ten[0][0] + '** with **' + str(
-                                          top_ten[0][1]) + "** puzzles completed.\n"
-                                                           "2. Team **" + top_ten[1][0] + '** with **' + str(
-                                          top_ten[1][1]) + "** puzzles completed.\n"
-                                                           "3. Team **" + top_ten[2][0] + '** with **' + str(
-                                          top_ten[2][1]) + "** puzzles completed.\n"
-                                                           "4. Team **" + top_ten[3][0] + '** with **' + str(
-                                          top_ten[3][1]) + "** puzzles completed.\n"
-                                                           "5. Team **" + top_ten[4][0] + '** with **' + str(
-                                          top_ten[4][1]) + "** puzzles completed.\n"
-                                                           "6. Team **" + top_ten[5][0] + '** with **' + str(
-                                          top_ten[5][1]) + "** puzzles completed.\n"
-                                                           "7. Team **" + top_ten[6][0] + '** with **' + str(
-                                          top_ten[6][1]) + "** puzzles completed.\n"
-                                                           "8. Team **" + top_ten[7][0] + '** with **' + str(
-                                          top_ten[7][1]) + "** puzzles completed.\n"
-                                                           "9. Team **" + top_ten[8][0] + '** with **' + str(
-                                          top_ten[8][1]) + "** puzzles completed.\n"
-                                                           "10. Team **" + top_ten[9][0] + '** with **' + str(
-                                          top_ten[9][1]) + "** puzzles completed.", color=0xffa500)
+                score_list = sorted(score_list, key=itemgetter(1))                  # sorting list in decreasing order
+                score_list = score_list[::-1]
+
+                displaylist = []
+                for i in range(0,num_scoreboard):
+                    try:
+                        displaylist.append(str(i+1)+". Team **"+score_list[i][0]+'** with **'+str(score_list[i][1])+"** puzzles completed.")
+                    except IndexError:
+                        pass
+                embed = discord.Embed(title="PixarHunt Top "+ str(num_scoreboard) +" Leaderboard",
+                                      description="\n".join(displaylist), color=0xffa500)
 
                 await message.channel.send(embed=embed)
+
             else:
                 await message.channel.send("Use !help to see how to use this bot.")
 
