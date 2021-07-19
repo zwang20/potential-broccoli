@@ -78,6 +78,8 @@ class MyClient(discord.Client):
                 embed = discord.Embed(title="Help Page", color=0x000000)
                 embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.",
                                 inline=False)
+                embed.add_field(name="!progress", value="Check your current progress.",
+                                inline=False)
                 embed.add_field(name="!getmeta", value="Get the meta, if you've answered all 5 puzzles correctly!",
                                 inline=False)
                 await message.channel.send(embed=embed)
