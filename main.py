@@ -81,8 +81,6 @@ class MyClient(discord.Client):
         if message.content.startswith('!'):
             message.content = message.content.lower()
             message_words = message.content.split()
-            team = team_id(message.author.id, teamlist)
-            add_user(team)
 
             if message.content == '!help':
                 embed = discord.Embed(title="Help Page", color=0x000000)
