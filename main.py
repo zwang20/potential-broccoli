@@ -56,9 +56,12 @@ def add_user(teamid):  # will be changed
                                  'cap': 'cap'})
 
 
-def team_id(userid, teamlist):  # TODO make this return the actual team name
-    return teamlist[str(userid)]
-
+def team_id(userid):  # returns teamid from userid
+    with open('teamlist.csv', newline='') as f:
+        for team in csv.DictReader(f):
+            if str(userid) == team["user1"] or str(userid) == team["user2"] or str(userid) == team["user3"] or str(userid) == team["user4"]:
+                return int(team["teamid"])
+    return -1
 
 def check_meta(teamid):
     x = 0
@@ -81,45 +84,19 @@ class MyClient(discord.Client):
         if message.content.startswith('!'):
             message.content = message.content.lower()
             message_words = message.content.split()
+            team = team_id(message.author.id)
 
             if message.content == '!help':
                 embed = discord.Embed(title="Help Page", color=0x000000)
                 embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.",
                                 inline=False)
-                embed.add_field(name="!progress", value="Check your current progress.",
-                                inline=False)
                 embed.add_field(name="!getmeta", value="Get the meta, if you've answered all 5 puzzles correctly!",
+                                inline=False)
+                embed.add_field(name="!progress", value="Check your current progress.",
                                 inline=False)
                 embed.add_field(name="!top", value="Check the leaderboard for puzzles solved!",
                                 inline=False)
                 await message.channel.send(embed=embed)
-
-            elif message.content.startswith('!puzz'):
-                puzzle_no = int(message_words[0][-1])
-                if message_words[1] == puzzle_answers[puzzle_no-1]:
-                    change_file(team, 'solve{}'.format(str(puzzle_no)), 1)
-                    embed = discord.Embed(color=0x00ff00)
-                    embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!\n"
-                                                           "Puzzle solved for {}.".format(puzzle_no, team),
-                                    inline=False)
-                    await message.channel.send(embed=embed)
-                else:
-                    embed = discord.Embed(color=0xff0000)
-                    embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
-                                    inline=False)
-                    await message.channel.send(embed=embed)
-
-            elif message.content.startswith('!progress'):
-                embed = discord.Embed(color=0x7289DA)
-                embed.add_field(name='**  **1\t 2\t\u20093\t\u20094\t\u200A5', value=" ".join([':green_square:' if check_user(team, 'solve{}'.format(str(i+1))) == '1' else ":black_large_square:" for i in range(5)]))
-                await message.channel.send(embed=embed)
-
-            elif message.content.startswith('!getmeta'):
-                x = check_meta(team)
-                if x == 5:
-                    await message.channel.send("Congratulations! Here's the meta!")
-                else:
-                    await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
 
             elif message.content == '!top':
                 score_list = []
@@ -144,6 +121,38 @@ class MyClient(discord.Client):
                                       description="\n".join(displaylist), color=0xffa500)
 
                 await message.channel.send(embed=embed)
+
+            elif team == -1:
+                await message.channel.send('Sorry, you are not registered. If you think this is an error, contact a PuzzleSoc Exec.')
+                return 0
+
+            elif message.content.startswith('!puzz'):
+                puzzle_no = int(message_words[0][-1])
+                if message_words[1] == puzzle_answers[puzzle_no-1]:
+                    change_file(team, 'solve{}'.format(str(puzzle_no)), 1)
+                    embed = discord.Embed(color=0x00ff00)
+                    embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!\n"
+                                                           "Puzzle solved for **{}**.".format(puzzle_no, teamlist[str(team)]),
+                                    inline=False)
+                    await message.channel.send(embed=embed)
+                else:
+                    embed = discord.Embed(color=0xff0000)
+                    embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
+                                    inline=False)
+                    await message.channel.send(embed=embed)
+
+            elif message.content.startswith('!progress'):
+                embed = discord.Embed(color=0x7289DA)
+                embed.add_field(name='**  **1\t 2\t\u20093\t\u20094\t\u200A5', value=" ".join([':green_square:' if check_user(team, 'solve{}'.format(str(i+1))) == '1' else ":black_large_square:" for i in range(5)]))
+                await message.channel.send(embed=embed)
+
+            elif message.content.startswith('!getmeta'):
+                x = check_meta(team)
+                if x == 5:
+                    await message.channel.send("Congratulations! Here's the meta!")
+                else:
+                    await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
+
 
             else:
                 await message.channel.send("Use !help to see how to use this bot.")
