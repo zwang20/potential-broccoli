@@ -7,6 +7,19 @@ with open('token.txt', 'r') as f:
 
 puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
 
+teamlist = {"1": "YES MAN",
+            "2": "NO MAN",
+            "3": "uwu doki doki nyan nyan neko girls nya",
+            "4": "yes man",
+            "5": "hoes",
+            "6": "yes man",
+            "7": "yes man",
+            "8": "maybe man",
+            "9": "yes man",
+            "10": "yes man",
+            "11": "timmy fan club uwu",
+            "12": "team number 12",
+            }
 
 def change_file(userid, field, new):
     field_pos = {'userid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5, 'cap': 6}
