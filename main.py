@@ -2,27 +2,21 @@ import discord
 import csv
 import os
 from operator import itemgetter
-
 with open('token.txt', 'r') as f:
     TOKEN = f.read()
 
-puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
+#########################################################################
 
-teamlist = {"1": "YES MAN",
-            "2": "NO MAN",
-            "3": "uwu doki doki nyan nyan neko girls nya",
-            "4": "yes man",
-            "5": "hoes",
-            "6": "yes man",
-            "7": "yes man",
-            "8": "maybe man",
-            "9": "yes man",
-            "10": "yes man",
-            "11": "timmy fan club uwu",
-            "12": "team number 12",
-            "13": "team number 13",
-            }
+puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
 num_scoreboard = 9
+
+#########################################################################
+
+teamlist = {}
+with open('teamlist.csv', newline='') as f:
+    for team in csv.DictReader(f):
+        teamlist[team["teamid"]] = team["teamname"]
+
 
 def change_file(teamid, field, new):
     field_pos = {'teamid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5, 'cap': 6}
@@ -62,8 +56,8 @@ def add_user(teamid):  # will be changed
                                  'cap': 'cap'})
 
 
-def team_id(userid):  # TODO make this return the actual team name
-    return userid
+def team_id(userid, teamlist):  # TODO make this return the actual team name
+    return teamlist[str(userid)]
 
 
 def check_meta(teamid):
@@ -84,12 +78,12 @@ class MyClient(discord.Client):
         if message.author.id == self.user.id:
             return
 
-        message.content = message.content.lower()
-        message_words = message.content.split()
-        team = team_id(message.author.id)
-        add_user(team)
-
         if message.content.startswith('!'):
+            message.content = message.content.lower()
+            message_words = message.content.split()
+            team = team_id(message.author.id, teamlist)
+            add_user(team)
+
             if message.content == '!help':
                 embed = discord.Embed(title="Help Page", color=0x000000)
                 embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.",
