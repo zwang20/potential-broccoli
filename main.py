@@ -9,6 +9,7 @@ with open('token.txt', 'r') as f:
 
 puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
 num_scoreboard = 9
+metalink = "https://google.com"
 
 #########################################################################
 
@@ -79,6 +80,7 @@ class MyClient(discord.Client):
         print('We have logged in as {0.user}'.format(client))
 
     async def on_message(self, message):
+        global teamlist
         if message.author.id == self.user.id:
             return
 
@@ -122,6 +124,46 @@ class MyClient(discord.Client):
 
                 await message.channel.send(embed=embed)
 
+            elif message.content == '!convert':
+                try:
+                    with open("Registration Form (Responses) - Form Responses 1.csv", "r") as f:
+                        pass
+                except FileNotFoundError:
+                    await message.channel.send('Registration form csv not found!')
+
+                with open("teamlist.csv", "w") as f:
+                    f.write("teamid,teamname,user1,user2,user3,user4\n")
+
+                with open("Registration Form (Responses) - Form Responses 1.csv", 'r', newline='') as f:
+                    j = 1
+                    for team in csv.DictReader(f):
+                        ids = []
+                        for i in range(1, 5):
+                            person = team[f"Team member {str(i)} Discord#ID"]
+                            try:
+                                ids.append(discord.utils.get(client.get_all_members(), name="{}".format(person[:-5]),
+                                                             discriminator="{}".format(person[-4:])).id)
+                            except:
+                                ids.append("None")
+
+                        with open('teamlist.csv', 'a', newline='') as teamlist:
+                            writer = csv.DictWriter(teamlist, fieldnames=['teamid', 'teamname', 'user1', 'user2', 'user3',
+                                                                       'user4'])
+                            writer.writerow({'teamid': j,
+                                             'teamname': team['Team Name'],
+                                             'user1': ids[0],
+                                             'user2': ids[1],
+                                             'user3': ids[2],
+                                             'user4': ids[3]})
+                        j += 1
+
+                teamlist = {}
+                with open('teamlist.csv', newline='') as f:
+                    for team in csv.DictReader(f):
+                        teamlist[team["teamid"]] = team["teamname"]
+
+                await message.channel.send('Teams loaded')
+
             elif team == -1:
                 await message.channel.send('Sorry, you are not registered. If you think this is an error, contact a PuzzleSoc Exec.')
                 return 0
@@ -163,7 +205,7 @@ class MyClient(discord.Client):
             elif message.content.startswith('!getmeta'):
                 x = check_score(team)
                 if x == 5:
-                    await message.channel.send("Congratulations! Here's the meta!")
+                    await message.channel.send("Congratulations! Here's the meta!\n" + metalink)
                 else:
                     await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
 
