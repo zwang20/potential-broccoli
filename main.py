@@ -14,10 +14,20 @@ metalink = "https://google.com"
 #########################################################################
 
 teamlist = {}
-with open('teamlist.csv', newline='') as f:
+with open('teamlist.csv', newline='') as f:             # creating dictionary {"teamid":"teamname"}
     for team in csv.DictReader(f):
         teamlist[team["teamid"]] = team["teamname"]
 
+try:                                                  # initialising teamlist.csv creates/formats it if incorrect form
+    with open("teamlist.csv", "r") as f:
+        reader = csv.reader(f)
+        if next(reader) != ['teamid', 'teamname', 'user1', 'user2', 'user3', 'user4', 'solve1', 'solve2', 'solve3',
+                            'solve4', 'solve5']:
+            with open("teamlist.csv", "w") as ff:
+                ff.write("teamid,teamname,user1,user2,user3,user4,solve1,solve2,solve3,solve4,solve5\n")
+except FileNotFoundError:
+    with open("teamlist.csv", "w") as f:
+        f.write("teamid,teamname,user1,user2,user3,user4,solve1,solve2,solve3,solve4,solve5\n")
 
 def change_file(teamid, field, new):
     field_pos = {'teamid': 0, 'solve1': 6, 'solve2': 7, 'solve3': 8, 'solve4': 9, 'solve5': 10}
@@ -121,9 +131,6 @@ class MyClient(discord.Client):
                 except FileNotFoundError:
                     await message.channel.send('Registration form csv not found!')
 
-                with open("teamlist.csv", "w") as f:
-                    f.write("teamid,teamname,user1,user2,user3,user4\n")
-
                 with open("Registration Form (Responses) - Form Responses 1.csv", 'r', newline='') as f:
                     j = 1
                     for team in csv.DictReader(f):
@@ -136,15 +143,31 @@ class MyClient(discord.Client):
                             except:
                                 ids.append("None")
 
-                        with open('teamlist.csv', 'a', newline='') as teamlist:
-                            writer = csv.DictWriter(teamlist, fieldnames=['teamid', 'teamname', 'user1', 'user2', 'user3',
-                                                                       'user4'])
-                            writer.writerow({'teamid': j,
-                                             'teamname': team['Team Name'],
-                                             'user1': ids[0],
-                                             'user2': ids[1],
-                                             'user3': ids[2],
-                                             'user4': ids[3]})
+                        team_already_exists = False                             # this runs like 1, 12, 123, because each new one is added per loop
+                        with open('teamlist.csv', 'r') as ff:
+                            for row in csv.DictReader(ff):
+                                if row["teamname"] == team['Team Name']:
+                                    team_already_exists = True
+                                    await message.channel.send('Team **' + team['Team Name'] + "** is already in teamlist.csv. No action taken for team.")
+
+                        if team_already_exists == False:
+                            with open('teamlist.csv', 'a', newline='') as teamlist:
+                                writer = csv.DictWriter(teamlist, fieldnames=['teamid', 'teamname', 'user1', 'user2',
+                                                                              'user3', 'user4', 'solve1', 'solve1',
+                                                                              'solve2', 'solve3',
+                                                                              'solve4', 'solve5'])
+                                writer.writerow({'teamid': j,
+                                                 'teamname': team['Team Name'],
+                                                 'user1': ids[0],
+                                                 'user2': ids[1],
+                                                 'user3': ids[2],
+                                                 'user4': ids[3],
+                                                 'solve1': 0,
+                                                 'solve2': 0,
+                                                 'solve3': 0,
+                                                 'solve4': 0,
+                                                 'solve5': 0,
+                                                 })
                         j += 1
 
                 teamlist = {}
@@ -153,9 +176,6 @@ class MyClient(discord.Client):
                         teamlist[team["teamid"]] = team["teamname"]
 
                 await message.channel.send('Teams loaded')
-
-            elif message.content == '!convert2':
-                pass
 
             elif team == -1:
                 await message.channel.send('Sorry, you are not registered. If you think this is an error, contact a PuzzleSoc Exec.')
