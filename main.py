@@ -43,7 +43,11 @@ def add_user(userid):  # will be changed
                                  'solve3': 0,
                                  'solve4': 0,
                                  'solve5': 0,
-                                 'cap': cap})
+                                 'cap': 'cap'})
+
+
+def team_id(userid):  # TODO make this return the actual team name
+    return userid
 
 
 def check_meta(userid):
@@ -66,7 +70,8 @@ class MyClient(discord.Client):
 
         message.content = message.content.lower()
         message_words = message.content.split()
-        add_user(message.author.id)
+        team = team_id(message.author.id)
+        add_user(team)
 
         if message.content.startswith('!'):
             if message.content == '!help':
@@ -80,9 +85,10 @@ class MyClient(discord.Client):
             elif message.content.startswith('!puzz'):
                 puzzle_no = int(message_words[0][-1])
                 if message_words[1] == puzzle_answers[puzzle_no-1]:
-                    change_file(message.author.id, 'solve{}'.format(str(puzzle_no)), 1)
+                    change_file(team, 'solve{}'.format(str(puzzle_no)), 1)
                     embed = discord.Embed(color=0x00ff00)
-                    embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!".format(puzzle_no),
+                    embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!\n"
+                                                           "Puzzle solved for {}.".format(puzzle_no, team),
                                     inline=False)
                     await message.channel.send(embed=embed)
                 else:
@@ -93,11 +99,11 @@ class MyClient(discord.Client):
 
             elif message.content.startswith('!progress'):
                 embed = discord.Embed(color=0x7289DA)
-                embed.add_field(name='**  **1\t 2\t\u20093\t\u20094\t\u200A5', value=" ".join([':green_square:' if check_user(message.author.id, 'solve{}'.format(str(i+1))) == '1' else ":red_square:" for i in range(5)]))
+                embed.add_field(name='**  **1\t 2\t\u20093\t\u20094\t\u200A5', value=" ".join([':green_square:' if check_user(team, 'solve{}'.format(str(i+1))) == '1' else ":black_large_square:" for i in range(5)]))
                 await message.channel.send(embed=embed)
 
             elif message.content.startswith('!getmeta'):
-                x = check_meta(message.author.id)
+                x = check_meta(team)
                 if x == 5:
                     await message.channel.send("Congratulations! Here's the meta!")
                 else:
