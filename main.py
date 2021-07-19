@@ -148,7 +148,7 @@ class MyClient(discord.Client):
                 await message.channel.send(embed=embed)
 
             elif message.content.startswith('!getid'):
-                person = message_words[1]
+                person = message.content[7:]
                 x = discord.utils.get(client.get_all_members(), name="{}".format(person[:-5]), discriminator="{}".format(person[-4:])).id
                 await message.channel.send(x)
 
