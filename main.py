@@ -1,11 +1,21 @@
 import discord
 import csv
 import os
-
+from operator import itemgetter
 with open('token.txt', 'r') as f:
     TOKEN = f.read()
 
+#########################################################################
+
 puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
+num_scoreboard = 9
+
+#########################################################################
+
+teamlist = {}
+with open('teamlist.csv', newline='') as f:
+    for team in csv.DictReader(f):
+        teamlist[team["teamid"]] = team["teamname"]
 
 
 def change_file(teamid, field, new):
@@ -29,7 +39,7 @@ def check_user(teamid, field):
                 return user[field]
 
 
-def add_team(teamid):  # will be changed
+def add_user(teamid):  # will be changed
     with open('users.csv', newline='') as users:
         for user in csv.DictReader(users):
             if int(user['teamid']) == teamid:
@@ -46,8 +56,8 @@ def add_team(teamid):  # will be changed
                                  'cap': 'cap'})
 
 
-def team_id(userid):  # TODO make this return the actual team name
-    return userid
+def team_id(userid, teamlist):  # TODO make this return the actual team name
+    return teamlist[str(userid)]
 
 
 def check_meta(teamid):
@@ -68,10 +78,11 @@ class MyClient(discord.Client):
         if message.author.id == self.user.id:
             return
 
-        message.content = message.content.lower()
-        message_words = message.content.split()
-        team = team_id(message.author.id)
-        add_team(team)
+        if message.content.startswith('!'):
+            message.content = message.content.lower()
+            message_words = message.content.split()
+            team = team_id(message.author.id, teamlist)
+            add_user(team)
 
         if message.content.startswith('!'):
             if message.content == '!help':
@@ -82,6 +93,8 @@ class MyClient(discord.Client):
                                 inline=False)
                 embed.add_field(name="!getmeta", value="Get the meta, if you've answered all 5 puzzles correctly!",
                                 inline=False)
+                embed.add_field(name="!top", value="Check the leaderboard for puzzles solved!",
+                                inline=False)
                 await message.channel.send(embed=embed)
 
             elif message.content.startswith('!puzz'):
@@ -90,7 +103,7 @@ class MyClient(discord.Client):
                     change_file(team, 'solve{}'.format(str(puzzle_no)), 1)
                     embed = discord.Embed(color=0x00ff00)
                     embed.add_field(name="Correct!", value="Your answer to puzzle {} is correct!\n"
-                                                           "Puzzle solved for team {}.".format(puzzle_no, team),
+                                                           "Puzzle solved for {}.".format(puzzle_no, team),
                                     inline=False)
                     await message.channel.send(embed=embed)
                 else:
@@ -110,6 +123,30 @@ class MyClient(discord.Client):
                     await message.channel.send("Congratulations! Here's the meta!")
                 else:
                     await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
+
+            elif message.content == '!top':
+                score_list = []
+                with open('users.csv', newline='') as f:
+                    for team in csv.DictReader(f):
+                        score = check_meta(int(team["teamid"]))
+                        try:
+                            score_list.append([teamlist[team["teamid"]], score])
+                        except KeyError:
+                            score_list.append([team["teamid"], score])
+
+                score_list = sorted(score_list, key=itemgetter(1))                  # sorting list in decreasing order
+                score_list = score_list[::-1]
+
+                displaylist = []
+                for i in range(0,num_scoreboard):
+                    try:
+                        displaylist.append(str(i+1)+". Team **"+score_list[i][0]+'** with **'+str(score_list[i][1])+"** puzzles completed.")
+                    except IndexError:
+                        pass
+                embed = discord.Embed(title="PixarHunt Top "+ str(num_scoreboard) +" Leaderboard",
+                                      description="\n".join(displaylist), color=0xffa500)
+
+                await message.channel.send(embed=embed)
 
             else:
                 await message.channel.send("Use !help to see how to use this bot.")
