@@ -20,8 +20,8 @@ with open('teamlist.csv', newline='') as f:
 
 
 def change_file(teamid, field, new):
-    field_pos = {'teamid': 0, 'solve1': 1, 'solve2': 2, 'solve3': 3, 'solve4': 4, 'solve5': 5, 'cap': 6}
-    with open('users.csv', 'r') as old_file, open('updated_users.csv', 'w+') as new_file:
+    field_pos = {'teamid': 0, 'solve1': 6, 'solve2': 7, 'solve3': 8, 'solve4': 9, 'solve5': 10}
+    with open('teamlist.csv', 'r') as old_file, open('updated_teamlist.csv', 'w+') as new_file:
         for row in old_file:
             row_content = row.split(',')
             if row_content[0] == str(teamid):
@@ -29,32 +29,15 @@ def change_file(teamid, field, new):
                 new_file.write(str(','.join(row_content)))
             else:
                 new_file.write(row)
-    os.remove('users.csv')
-    os.rename('updated_users.csv', 'users.csv')
+    os.remove('teamlist.csv')
+    os.rename('updated_teamlist.csv', 'teamlist.csv')
 
 
 def check_user(teamid, field):
-    with open('users.csv', newline='') as users:
+    with open('teamlist.csv', newline='') as users:
         for user in csv.DictReader(users):
             if int(user['teamid']) == teamid:
                 return user[field]
-
-
-def add_user(teamid):  # will be changed
-    with open('users.csv', newline='') as users:
-        for user in csv.DictReader(users):
-            if int(user['teamid']) == teamid:
-                break
-        else:
-            with open('users.csv', 'a', newline='') as users:
-                writer = csv.DictWriter(users, fieldnames=['teamid', 'solve1', 'solve2', 'solve3', 'solve4', 'solve5', 'cap'])
-                writer.writerow({'teamid': teamid,
-                                 'solve1': 0,
-                                 'solve2': 0,
-                                 'solve3': 0,
-                                 'solve4': 0,
-                                 'solve5': 0,
-                                 'cap': 'cap'})
 
 
 def team_id(userid):  # returns teamid from userid
@@ -100,9 +83,16 @@ class MyClient(discord.Client):
                                 inline=False)
                 await message.channel.send(embed=embed)
 
+            if message.content == '!admin':
+                embed = discord.Embed(title="Admin Help Page", color=0x000000)
+                embed.add_field(name="!convert",
+                                value="Converts registration form to teamlist (resets teamlist)",
+                                inline=False)
+                await message.channel.send(embed=embed)
+
             elif message.content == '!top':
                 score_list = []
-                with open('users.csv', newline='') as f:
+                with open('teamlist.csv', newline='') as f:
                     for team in csv.DictReader(f):
                         score = check_score(int(team["teamid"]))
                         try:
@@ -163,6 +153,9 @@ class MyClient(discord.Client):
                         teamlist[team["teamid"]] = team["teamname"]
 
                 await message.channel.send('Teams loaded')
+
+            elif message.content == '!convert2':
+                pass
 
             elif team == -1:
                 await message.channel.send('Sorry, you are not registered. If you think this is an error, contact a PuzzleSoc Exec.')
