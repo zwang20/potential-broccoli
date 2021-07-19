@@ -63,6 +63,7 @@ def team_id(userid):  # returns teamid from userid
                 return int(team["teamid"])
     return -1
 
+
 def check_score(teamid):
     x = 0
     for i in range(5):
@@ -146,6 +147,11 @@ class MyClient(discord.Client):
                 embed.add_field(name='**  **1\t 2\t\u20093\t\u20094\t\u200A5', value=" ".join([':green_square:' if check_user(team, 'solve{}'.format(str(i+1))) == '1' else ":black_large_square:" for i in range(5)]))
                 await message.channel.send(embed=embed)
 
+            elif message.content.startswith('!getid'):
+                person = message_words[1]
+                x = discord.utils.get(client.get_all_members(), name="{}".format(person[:-5]), discriminator="{}".format(person[-4:])).id
+                await message.channel.send(x)
+
             elif message.content.startswith('!getmeta'):
                 x = check_score(team)
                 if x == 5:
@@ -158,6 +164,7 @@ class MyClient(discord.Client):
                 await message.channel.send("Use !help to see how to use this bot.")
 
 
-client = MyClient()
+intents = discord.Intents().all()
+client = MyClient(intents=intents)
 client.run(TOKEN)
 
