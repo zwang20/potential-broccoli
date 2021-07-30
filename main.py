@@ -6,10 +6,15 @@ with open('token.txt', 'r') as f:
     TOKEN = f.read()
 
 #########################################################################
-# Version 1.0
+# Version 1.1
 
-puzzle_answers = ['test1', 'test2', 'test3', 'test4', 'test5']
-num_scoreboard = 9
+puzzle_answers = ['sampleanswer', 'sampleanswer', 'sampleanswer', 'sampleanswer', 'sampleanswer']
+puzzle_links = ['https://google.com',
+                'https://youtube.com',
+                'https://github.com',
+                'https://speedtest.net',
+                'https://en.wikipedia.org']
+num_scoreboard = 15
 metalink = "https://google.com"
 
 #########################################################################
@@ -72,6 +77,7 @@ class MyClient(discord.Client):
     async def on_ready():
         print('\nOnline')
         print('We have logged in as {0.user}'.format(client))
+        # print(str(discord.utils.get(client.get_all_members(), name="testname", discriminator="6665").id))
 
     async def on_message(self, message):
         global teamlist
@@ -90,14 +96,30 @@ class MyClient(discord.Client):
                                 inline=False)
                 embed.add_field(name="!progress", value="Check your current progress.",
                                 inline=False)
+                embed.add_field(name="!getpuzzles", value="Get the links for the first 5 puzzles again.",
+                                inline=False)
                 embed.add_field(name="!top", value="Check the leaderboard for puzzles solved!",
                                 inline=False)
                 await message.channel.send(embed=embed)
 
             if message.content == '!admin':
-                embed = discord.Embed(title="Admin Help Page", color=0x000000)
+                embed = discord.Embed(title="Admin Commandlist Page", color=0x000000)
                 embed.add_field(name="!convert",
-                                value="Converts registration form to teamlist (resets teamlist)",
+                                value="Converts registration form to teamlist (leaves existing teams alone)",
+                                inline=False)
+                embed.add_field(name="!getid",
+                                value="Gets the id of a user if they share a server with the bot\nUsage: !getid #puzzlemaster#1234",
+                                inline=False)
+                await message.channel.send(embed=embed)
+
+            elif message.content == '!getpuzzles':
+                embed = discord.Embed(title="Puzzle List", color=0x000000)
+                for i in range(len(puzzle_links)):
+                    embed.add_field(name="Puzzle " + str(i+1),
+                                    value=puzzle_links[i],
+                                    inline=False)
+                embed.add_field(name="Meta Puzzle",
+                                value="Unlocks once all 5 puzzles have been correctly submitted.",
                                 inline=False)
                 await message.channel.send(embed=embed)
 
@@ -132,17 +154,23 @@ class MyClient(discord.Client):
                 except FileNotFoundError:
                     await message.channel.send('Registration form csv not found!')
 
-                with open("Registration Form (Responses) - Form Responses 1.csv", 'r', newline='') as f:
+                with open("Registration Form (Responses) - Form Responses 1.csv", 'r', encoding="utf-8", newline='') as f:
                     j = 1
                     for team in csv.DictReader(f):
                         ids = []
                         for i in range(1, 5):
-                            person = team[f"Team member {str(i)} Discord#ID"]
+                            if i == 1:
+                                person = team[f"Team member {str(i)}'s Discord#ID (eg PuzzleMaster#1234)"]
+                            else:
+                                person = team[f"Team member {str(i)}'s Discord#ID"]
                             try:
                                 ids.append(discord.utils.get(client.get_all_members(), name="{}".format(person[:-5]),
                                                              discriminator="{}".format(person[-4:])).id)
                             except:
                                 ids.append("None")
+                                if person != '':
+                                    print(person + " wasn't found")
+                                    await message.channel.send(person + " wasn't found")
 
                         team_already_exists = False                             # this runs like 1, 12, 123, because each new one is added per loop
                         with open('teamlist.csv', 'r') as ff:
@@ -208,23 +236,22 @@ class MyClient(discord.Client):
                 except IndexError:
                     await message.channel.send("Use !help to see how to use this bot.")
 
-            elif message.content.startswith('!progress'):
+            elif message.content == '!progress':
                 embed = discord.Embed(color=0x7289DA)
                 embed.add_field(name='**  **1\t 2\t\u20093\t\u20094\t\u200A5', value=" ".join([':green_square:' if check_user(team, 'solve{}'.format(str(i+1))) == '1' else ":black_large_square:" for i in range(5)]))
                 await message.channel.send(embed=embed)
 
-            elif message.content.startswith('!getid'):
+            elif message.content == '!getid':
                 person = message.content[7:]
                 x = discord.utils.get(client.get_all_members(), name="{}".format(person[:-5]), discriminator="{}".format(person[-4:])).id
                 await message.channel.send(x)
 
-            elif message.content.startswith('!getmeta'):
+            elif message.content == '!getmeta':
                 x = check_score(team)
                 if x == 5:
                     await message.channel.send("Congratulations! Here's the meta!\n" + metalink)
                 else:
                     await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
-
 
             else:
                 await message.channel.send("Use !help to see how to use this bot.")
