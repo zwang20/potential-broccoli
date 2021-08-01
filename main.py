@@ -102,7 +102,7 @@ class MyClient(discord.Client):
                                 inline=False)
                 await message.channel.send(embed=embed)
 
-            if message.content == '!admin':
+            elif message.content == '!admin':
                 embed = discord.Embed(title="Admin Commandlist Page", color=0x000000)
                 embed.add_field(name="!convert",
                                 value="Converts registration form to teamlist (leaves existing teams alone)",
