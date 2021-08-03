@@ -2,6 +2,7 @@ import discord
 import csv
 import os
 from operator import itemgetter
+import time
 with open('.token', 'r') as f:
     TOKEN = f.read()
 
@@ -212,10 +213,6 @@ class MyClient(discord.Client):
 
                 await message.channel.send('Teams loaded')
 
-            elif message.content.startswith('!test'):
-                channel = client.get_channel(CHANNEL_ID)
-                await channel.send('hi')
-
             elif team == -1:
                 await message.channel.send('Sorry, you are not registered. If you think this is an error, contact a PuzzleSoc Exec.')
                 return 0
@@ -237,16 +234,16 @@ class MyClient(discord.Client):
                                                                "Puzzle solved for **{}**.".format(puzzle_no, teamlist[str(team)]),
                                         inline=False)
                         await message.channel.send(embed=embed)
-                        await channel.send(f"Team **{teamlist[str(team)]}** solved puzzle {puzzle_no} with answer {message.content[7:]}!")
+                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** solved puzzle {puzzle_no} with answer {message.content[7:]}!")
                         if check_score(team) == 5:
                             await message.channel.send("Congratulations on solving all 5 puzzles! Here's the meta!\n" + metalink)
-                            await channel.send(f"Team **{teamlist[str(team)]}** has reached the meta!")
+                            await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has reached the meta!")
                     else:
                         embed = discord.Embed(color=0xff0000)
                         embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
                                         inline=False)
                         await message.channel.send(embed=embed)
-                        await channel.send(f"Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer {message.content[7:]}.")
+                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer {message.content[7:]}.")
                 except IndexError:
                     await message.channel.send("Use !help to see how to use this bot.")
 
@@ -263,7 +260,7 @@ class MyClient(discord.Client):
             elif message.content == '!getmeta':
                 x = check_score(team)
                 if x == 5:
-                    await message.channel.send("Congratulations! Here's the meta!\n" + metalink)
+                    await message.channel.send("Congratulations! Here's the meta! <:v2:870586401018753044>\n" + metalink)
                 else:
                     await message.channel.send("You still have {} puzzle{} to go.".format(5-x, "" if x == 4 else "s"))
 
@@ -272,7 +269,7 @@ class MyClient(discord.Client):
 
 
 intents = discord.Intents().all()
-activity = discord.Activity(name='you.', type=discord.ActivityType.watching)
+activity = discord.Activity(name='with puzzles', type=discord.ActivityType.playing)
 client = MyClient(intents=intents, activity=activity)
 client.run(TOKEN)
 
