@@ -2,7 +2,7 @@ import discord
 import csv
 import os
 from operator import itemgetter
-with open('token.txt', 'r') as f:
+with open('.token', 'r') as f:
     TOKEN = f.read()
 
 #########################################################################
@@ -15,6 +15,7 @@ puzzle_links = ['https://google.com',
                 'https://speedtest.net',
                 'https://en.wikipedia.org']
 num_scoreboard = 15
+CHANNEL_ID = 866295094864510986 # where updates get sent to
 metalink = "https://google.com"
 
 #########################################################################
@@ -118,9 +119,14 @@ class MyClient(discord.Client):
                     embed.add_field(name="Puzzle " + str(i+1),
                                     value=puzzle_links[i],
                                     inline=False)
-                embed.add_field(name="Meta Puzzle",
-                                value="Unlocks once all 5 puzzles have been correctly submitted.",
-                                inline=False)
+                if check_score(team) == 5:
+                    embed.add_field(name="Meta Puzzle",
+                                    value=metalink,
+                                    inline=False)
+                else:
+                    embed.add_field(name="Meta Puzzle",
+                                    value="Unlocks once all 5 puzzles have been correctly submitted.",
+                                    inline=False)
                 await message.channel.send(embed=embed)
 
             elif message.content == '!top':
@@ -206,12 +212,17 @@ class MyClient(discord.Client):
 
                 await message.channel.send('Teams loaded')
 
+            elif message.content.startswith('!test'):
+                channel = client.get_channel(CHANNEL_ID)
+                await channel.send('hi')
+
             elif team == -1:
                 await message.channel.send('Sorry, you are not registered. If you think this is an error, contact a PuzzleSoc Exec.')
                 return 0
 
             elif message.content.startswith('!puzz'):
                 message.content = message.content.lower()
+                channel = client.get_channel(CHANNEL_ID)
                 puzzle_no = message_words[0][-1]
                 if puzzle_no not in '12345':
                     await message.channel.send("Use !help to see how to use this bot.")
@@ -226,13 +237,16 @@ class MyClient(discord.Client):
                                                                "Puzzle solved for **{}**.".format(puzzle_no, teamlist[str(team)]),
                                         inline=False)
                         await message.channel.send(embed=embed)
+                        await channel.send(f"Team **{teamlist[str(team)]}** solved puzzle {puzzle_no} with answer {message.content[7:]}!")
                         if check_score(team) == 5:
                             await message.channel.send("Congratulations on solving all 5 puzzles! Here's the meta!\n" + metalink)
+                            await channel.send(f"Team **{teamlist[str(team)]}** has reached the meta!")
                     else:
                         embed = discord.Embed(color=0xff0000)
                         embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
                                         inline=False)
                         await message.channel.send(embed=embed)
+                        await channel.send(f"Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer {message.content[7:]}.")
                 except IndexError:
                     await message.channel.send("Use !help to see how to use this bot.")
 
@@ -258,6 +272,7 @@ class MyClient(discord.Client):
 
 
 intents = discord.Intents().all()
-client = MyClient(intents=intents)
+activity = discord.Activity(name='you.', type=discord.ActivityType.watching)
+client = MyClient(intents=intents, activity=activity)
 client.run(TOKEN)
 

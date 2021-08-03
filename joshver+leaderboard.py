@@ -5,7 +5,7 @@ from operator import itemgetter
 import os
 
 client = discord.Client()
-with open('token.txt', 'r') as f:
+with open('.token', 'r') as f:
     TOKEN = f.read()
 
 bot = commands.Bot(command_prefix='!')
