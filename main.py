@@ -9,15 +9,16 @@ with open('.token', 'r') as f:
 #########################################################################
 # Version 1.1
 
-puzzle_answers = ['sampleanswer', 'sampleanswer', 'sampleanswer', 'sampleanswer', 'sampleanswer']
-puzzle_links = ['https://google.com',
-                'https://youtube.com',
-                'https://github.com',
-                'https://speedtest.net',
-                'https://en.wikipedia.org']
+puzzle_answers = ['brakedance', 'caramelpies', 'adventure', 'eeniemeenieminiemo', 'class']
+puzzle_links = ['https://cdn.discordapp.com/attachments/608260104906866717/873216521072169010/Full_Speed_Ahead_.png',
+                'https://cdn.discordapp.com/attachments/608259916918161429/873216949302210631/A_Sweet_Mix-up.png',
+                'https://cdn.discordapp.com/attachments/861807322786693139/873508887515508826/Soul_Reason.png',
+                'https://cdn.discordapp.com/attachments/609363499705171969/873540148808282152/trashtowers.png',
+                'https://cdn.discordapp.com/attachments/608260104906866717/873216550998507530/Nemos_New_Family.png']
 num_scoreboard = 15
-CHANNEL_ID = 866295094864510986 # where updates get sent to
-metalink = "https://google.com"
+CHANNEL_ID = 111111111111111111 # where updates get sent to BOT UPDATES
+CHANNEL_ID_2 = 111111111111111111 # where successes get sent to
+metalink = "https://forms.gle/"
 
 #########################################################################
 
@@ -104,6 +105,7 @@ class MyClient(discord.Client):
                                 inline=False)
                 await message.channel.send(embed=embed)
 
+            elif message.content == '!admin':
             elif message.content == '!admin':
                 embed = discord.Embed(title="Admin Commandlist Page", color=0x000000)
                 embed.add_field(name="!convert",
@@ -220,6 +222,7 @@ class MyClient(discord.Client):
             elif message.content.startswith('!puzz'):
                 message.content = message.content.lower()
                 channel = client.get_channel(CHANNEL_ID)
+                channel2 = client.get_channel(CHANNEL_ID_2)
                 puzzle_no = message_words[0][-1]
                 if puzzle_no not in '12345':
                     await message.channel.send("Use !help to see how to use this bot.")
@@ -235,15 +238,19 @@ class MyClient(discord.Client):
                                         inline=False)
                         await message.channel.send(embed=embed)
                         await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** solved puzzle {puzzle_no} with answer '**{message.content[7:]}**'!")
+                        await channel2.send(
+                            f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** solved puzzle {puzzle_no} with answer '**{message.content[7:]}**'!")
                         if check_score(team) == 5:
                             await message.channel.send("Congratulations on solving all 5 puzzles! Here's the meta!\n" + metalink)
                             await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has reached the meta!")
+                            await channel2.send(
+                                f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has reached the meta!")
                     else:
                         embed = discord.Embed(color=0xff0000)
                         embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
                                         inline=False)
                         await message.channel.send(embed=embed)
-                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer '**{message.content[7:]}**'.")
+                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer **{message.content[7:]}**.")
                 except IndexError:
                     await message.channel.send("Use !help to see how to use this bot.")
 
