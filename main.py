@@ -234,7 +234,7 @@ class MyClient(discord.Client):
                                                                "Puzzle solved for **{}**.".format(puzzle_no, teamlist[str(team)]),
                                         inline=False)
                         await message.channel.send(embed=embed)
-                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** solved puzzle {puzzle_no} with answer {message.content[7:]}!")
+                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** solved puzzle {puzzle_no} with answer '**{message.content[7:]}**'!")
                         if check_score(team) == 5:
                             await message.channel.send("Congratulations on solving all 5 puzzles! Here's the meta!\n" + metalink)
                             await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has reached the meta!")
@@ -243,7 +243,7 @@ class MyClient(discord.Client):
                         embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
                                         inline=False)
                         await message.channel.send(embed=embed)
-                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer {message.content[7:]}.")
+                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer '**{message.content[7:]}**'.")
                 except IndexError:
                     await message.channel.send("Use !help to see how to use this bot.")
 
