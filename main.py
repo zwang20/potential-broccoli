@@ -106,7 +106,6 @@ class MyClient(discord.Client):
                 await message.channel.send(embed=embed)
 
             elif message.content == '!admin':
-            elif message.content == '!admin':
                 embed = discord.Embed(title="Admin Commandlist Page", color=0x000000)
                 embed.add_field(name="!convert",
                                 value="Converts registration form to teamlist (leaves existing teams alone)",
@@ -250,7 +249,7 @@ class MyClient(discord.Client):
                         embed.add_field(name="Incorrect.", value="Your answer to puzzle {} is incorrect.".format(puzzle_no),
                                         inline=False)
                         await message.channel.send(embed=embed)
-                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer **{message.content[7:]}**.")
+                        await channel.send(f"<t:{int(time.time())}> Team **{teamlist[str(team)]}** has incorrectly attempted puzzle {puzzle_no} with answer '**{message.content[7:]}**'.")
                 except IndexError:
                     await message.channel.send("Use !help to see how to use this bot.")
 
