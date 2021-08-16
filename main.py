@@ -91,7 +91,26 @@ class MyClient(discord.Client):
             message_words = message.content.split()
             team = team_id(message.author.id)
 
-            if message.content == '!help':
+            if message.content == '!send':
+                message = \
+                '''Hi! I’m <@866265168802611201>, and I’ll be helping out with this puzzle hunt! \
+You’ll be interacting with me through DMs throughout the puzzle hunt to get puzzles and submit answers. \
+I’ll also be giving you a meta puzzle once you solve all 5 puzzles. 
+
+I can respond to a few commands: 
+`!getpuzzles` - I’ll send you links to the puzzles, and the meta if you’ve unlocked it. 
+`!puzz[number] [answer]` - Submit [answer] for puzzle [number]. Please send the answer as a single string of lowercase letters without punctuation - e.g. if your answer is 'I am PuzzleSoc's slave', then send 'iampuzzlesocsslave' as your answer.
+`!progress` - Check your team’s puzzle-solving progress! 
+`!top` - See the team leaderboards! 
+`!getmeta` - Get a link to the meta (specifically) 
+
+To read these instructions again, DM me `!help`.
+(if I’m not making sense, please message <@178284977220222976> or <@304237385196240896>. I have a lot of people to reply to, so please forgive me if I ghost you once - just send the message again please >_<)'''
+                message2 = "you're welcome :D"
+                channel = client.get_channel([828914686246125639, 823443001841287169][1])
+                await channel.send(message2)
+
+            elif message.content == '!help':
                 embed = discord.Embed(title="Help Page", color=0x000000)
                 embed.add_field(name="!puzz[number] [answer]", value="Check the answer of your [number]th puzzle.\nE.g. !puzz1 sampleanswer",
                                 inline=False)
